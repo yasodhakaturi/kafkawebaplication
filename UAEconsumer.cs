@@ -31,25 +31,72 @@ namespace Web
     {
         private readonly string topic;
         private readonly IConsumer<string, string> kafkaConsumer;
-
+         int count = 0;
         public UAEconsumer(IConfiguration config)
         {
 
             var consumerConfig = new ConsumerConfig();
             config.GetSection("Kafka:ConsumerSettings").Bind(consumerConfig);
-            this.topic = config.GetValue<string>("Kafka:RequestTimeTopic");
+            this.topic = config.GetValue<string>("Kafka:FrivolousTopic");
             this.kafkaConsumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
 
         }
-
+       
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             new Thread(() => StartConsumerLoop(stoppingToken)).Start();
-
             return Task.CompletedTask;
         }
 
         private void StartConsumerLoop(CancellationToken cancellationToken)
+        {
+            kafkaConsumer.Subscribe(this.topic);
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (count < 4)
+                {
+                    try
+                    {
+                        var cr = this.kafkaConsumer.Consume(cancellationToken);
+                        count++;
+                        //string crstr = cr.Headers.ToString() + "/ " + cr.Topic + " / " + cr.Key.ToString() + "/" + cr.Message + "/ " + cr.IsPartitionEOF + "/" + cr.Offset + "/ " + cr.Partition + "/" + cr.Timestamp.ToString() + "/" + cr.TopicPartition + "/" + cr.TopicPartitionOffset + "/" + cr.Value;
+                        // Handle message...
+                        //Console.WriteLine("\n UAEconsumer -- consumer string : " + $"{ crstr.ToString()}");
+                        //Console.WriteLine("\n UAEconsumer -- message received :Key=" + $"{cr.Timestamp.UtcDateTime} : {cr.Message.Key}: {cr.Message.Value}");
+                        Console.WriteLine($"UAEconsumer -- Message: {cr.Message.Value} received from {cr.TopicPartitionOffset} at cr.Timestamp.UtcDateTime ");
+
+                    }
+                    catch (OperationCanceledException)
+                    {
+
+                    }
+                    catch (ConsumeException e)
+                    {
+                        // Consumer errors should generally be ignored (or logged) unless fatal.
+                        Console.WriteLine($"UAEconsumer Consume error: {e.Error.Reason}");
+
+                        if (e.Error.IsFatal)
+                        {
+                            // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
+                            // break;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Unexpected error: {e}");
+                        //break;
+                    }
+                }
+                else
+                {
+                    TimeSpan ts = new TimeSpan(0, 0, 10);
+                    Thread.Sleep(ts);
+                    count = 0;
+                }
+                }
+        }
+        private void StartConsumerLoop1(CancellationToken cancellationToken)
         {
             kafkaConsumer.Subscribe(this.topic);
 

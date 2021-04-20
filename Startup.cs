@@ -39,9 +39,11 @@ namespace Web
             services.AddSingleton<KafkaDependentProducer<Null, string>>();
             services.AddSingleton<KafkaDependentProducer<string, long>>();
             services.AddSingleton<KafkaDependentProducer<string, string>>();
-            services.AddHostedService<RequestTimeConsumer>();
+            services.AddSingleton<KafkaDependentProducer<string, int>>();
+            //services.AddHostedService<RequestTimeConsumer>();
             services.AddHostedService<USAconsumer>();
             services.AddHostedService<UAEconsumer>();
+            services.AddHostedService<INDconsumer>();
             services.AddControllersWithViews();
         }
 

@@ -60,7 +60,7 @@ namespace Web
                     var cr = this.kafkaConsumer.Consume(cancellationToken);
 
                     // Handle message...
-                    Console.WriteLine("\n USAconsumer -- message received : Key=" + $"{cr.Message.Key}: {cr.Message.Value}");
+                    Console.WriteLine("\n USAconsumer -- message received : message=" + $" {cr.Message.Value}");
                 }
                 catch (OperationCanceledException)
                 {
