@@ -35,9 +35,13 @@ namespace Web
         public USAconsumer(IConfiguration config)
         {
 
-            var consumerConfig = new ConsumerConfig();
+            var consumerConfig = new ConsumerConfig
+            {
+                GroupId = "consumer-group",
+                MaxInFlight = 2,
+                PartitionAssignmentStrategy = PartitionAssignmentStrategy.RoundRobin };
             config.GetSection("Kafka:ConsumerSettings").Bind(consumerConfig);
-            this.topic = config.GetValue<string>("Kafka:FrivolousTopic");
+            this.topic = config.GetValue<string>("Kafka:RequestTimeTopic");
             this.kafkaConsumer = new ConsumerBuilder<Null, string>(consumerConfig).Build();
 
         }
@@ -60,7 +64,9 @@ namespace Web
                     var cr = this.kafkaConsumer.Consume(cancellationToken);
 
                     // Handle message...
-                    Console.WriteLine("\n USAconsumer -- message received : message=" + $" {cr.Message.Value}");
+                    // Console.WriteLine("\n USAconsumer -- message received : message=" + $" {cr.Message.Value}");
+                    // Console.WriteLine($"USAconsumer -- Message: {cr.Message.Value} received from Topic : {cr.Topic} ,at partition {cr.Partition} , partitionoffset: {cr.TopicPartitionOffset} at { cr.Timestamp.UtcDateTime} ");
+                    Console.WriteLine($"USAconsumer -- Received message at {cr.TopicPartitionOffset}: {cr.Message.Value}");
                 }
                 catch (OperationCanceledException)
                 {
@@ -84,7 +90,29 @@ namespace Web
                 }
             }
         }
+        private void consumefrompartition()
+        {
+            //using (var consumer = new Consumer<Ignore, string>(config))
+            //{
+            WatermarkOffsets ws = kafkaConsumer.GetWatermarkOffsets(new TopicPartition(this.topic, 5 ));
+               // kafkaConsumer.Assign(this.topic, 0, new Offset(ws.High.Value));
+                while (true)
+                {
+                    try
+                    {
+                        var consumeResult = kafkaConsumer.Consume();
+                        Console.WriteLine($"Received message at {consumeResult.TopicPartitionOffset}: ${consumeResult.Value}");
+                    }
+                    catch (ConsumeException e)
+                    {
+                        Console.WriteLine($"Consume error: {e.Error}");
+                    }
+                }
 
+                kafkaConsumer.Close();
+           // }
+
+        }
         public override void Dispose()
         {
             this.kafkaConsumer.Close(); // Commit offsets and leave the group cleanly.

@@ -30,15 +30,22 @@ namespace Web
     public class UAEconsumer : BackgroundService
     {
         private readonly string topic;
-        private readonly IConsumer<string, string> kafkaConsumer;
+        private readonly IConsumer<Null, string> kafkaConsumer;
          int count = 0;
         public UAEconsumer(IConfiguration config)
         {
 
-            var consumerConfig = new ConsumerConfig();
+            //var consumerConfig = new ConsumerConfig();
+            var consumerConfig = new ConsumerConfig
+            {
+                GroupId="consumer-group",
+                MaxInFlight = 2, 
+                
+                PartitionAssignmentStrategy = PartitionAssignmentStrategy.RoundRobin 
+            };
             config.GetSection("Kafka:ConsumerSettings").Bind(consumerConfig);
-            this.topic = config.GetValue<string>("Kafka:FrivolousTopic");
-            this.kafkaConsumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
+            this.topic = config.GetValue<string>("Kafka:RequestTimeTopic");
+            this.kafkaConsumer = new ConsumerBuilder<Null, string>(consumerConfig).Build();
 
         }
        
@@ -54,19 +61,20 @@ namespace Web
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                if (count < 4)
-                {
+                //if (count < 4)
+                //{
                     try
                     {
-                        var cr = this.kafkaConsumer.Consume(cancellationToken);
+                    //this.kafkaConsumer.Assign(this.topic, 0, new Offset(lastConsumedOffset));
+                    var cr = this.kafkaConsumer.Consume(cancellationToken);
                         count++;
-                        //string crstr = cr.Headers.ToString() + "/ " + cr.Topic + " / " + cr.Key.ToString() + "/" + cr.Message + "/ " + cr.IsPartitionEOF + "/" + cr.Offset + "/ " + cr.Partition + "/" + cr.Timestamp.ToString() + "/" + cr.TopicPartition + "/" + cr.TopicPartitionOffset + "/" + cr.Value;
-                        // Handle message...
-                        //Console.WriteLine("\n UAEconsumer -- consumer string : " + $"{ crstr.ToString()}");
-                        //Console.WriteLine("\n UAEconsumer -- message received :Key=" + $"{cr.Timestamp.UtcDateTime} : {cr.Message.Key}: {cr.Message.Value}");
-                        Console.WriteLine($"UAEconsumer -- Message: {cr.Message.Value} received from {cr.TopicPartitionOffset} at cr.Timestamp.UtcDateTime ");
-
-                    }
+                    //string crstr = cr.Headers.ToString() + "/ " + cr.Topic + " / " + cr.Key.ToString() + "/" + cr.Message + "/ " + cr.IsPartitionEOF + "/" + cr.Offset + "/ " + cr.Partition + "/" + cr.Timestamp.ToString() + "/" + cr.TopicPartition + "/" + cr.TopicPartitionOffset + "/" + cr.Value;
+                    // Handle message...
+                    //Console.WriteLine("\n UAEconsumer -- consumer string : " + $"{ crstr.ToString()}");
+                    //Console.WriteLine("\n UAEconsumer -- message received :Key=" + $"{cr.Timestamp.UtcDateTime} : {cr.Message.Key}: {cr.Message.Value}");
+                    //Console.WriteLine($"UAEconsumer -- Message: {cr.Message.Value} received from Topic : {cr.Topic} ,at partition {cr.Partition} , partitionoffset: {cr.TopicPartitionOffset} at { cr.Timestamp.UtcDateTime} ");
+                    Console.WriteLine($"UAEconsumer -- Received message at {cr.TopicPartitionOffset}: {cr.Message.Value}");
+                }
                     catch (OperationCanceledException)
                     {
 
@@ -87,13 +95,13 @@ namespace Web
                         Console.WriteLine($"Unexpected error: {e}");
                         //break;
                     }
-                }
-                else
-                {
-                    TimeSpan ts = new TimeSpan(0, 0, 10);
-                    Thread.Sleep(ts);
-                    count = 0;
-                }
+                //}
+                //else
+                //{
+                //    TimeSpan ts = new TimeSpan(0, 0, 10);
+                //    Thread.Sleep(ts);
+                //    count = 0;
+                //}
                 }
         }
         private void StartConsumerLoop1(CancellationToken cancellationToken)

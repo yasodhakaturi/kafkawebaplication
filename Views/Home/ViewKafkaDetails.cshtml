@@ -1,0 +1,171 @@
+﻿
+
+
+@using NonFactors.Mvc.Grid;
+
+@model Web.Models.KafkaServerDetails
+
+@{
+    ViewData["Title"] = "ViewKafkaDetails";
+}
+
+<h1>KafkaDetails</h1>
+
+<p>
+    <a asp-action="Create">Kafka details</a>
+</p>
+@if (Model != null)
+{
+    <label style="font-weight: bold;  width:200px">GroupInfo</label>
+    <br/>
+    <table style="table-layout:fixed">
+        <tr style="font-weight: bold;">
+            <td>broker</td>
+            <td>Group</td>
+            <td>State</td>
+            <td>ProtocolType</td>
+            <td>Protocol</td>
+            <td>Members</td>
+        </tr>
+        <tr>
+            <td width="500" style="text-wrap ">
+                @foreach (var item in Model.groupinfo)
+                {
+                    <label>Brokers : @item.broker.BrokerId @item.broker.Host @item.broker.Port </label>
+                    <label> State : @item.State </label>
+                    <label>Protocaltype : @item.ProtocolType  </label>
+                    <label> Hiost : @item.Protocol</label>
+                    <lable style="font-weight: bold;">GroupMemberInfo :</lable>
+                    @if (item.Members != null)
+                    {
+                    @foreach (var grmem in item.Members)
+                    {
+                        <label>MemberId : @grmem.MemberId</label>
+                        <label>ClientId : @grmem.ClientId</label>
+                        <label>ClientHost : @grmem.ClientHost</label>
+                        <label>MemberMetadata : @grmem.MemberMetadata</label>
+                        <label>MemberAssignment :@grmem.MemberAssignment </label>
+                    }
+                    }
+
+                    @*</tr>*@
+                }
+            </td>
+
+            </tr>
+    </table>
+    <br/>
+    <label style="font-weight: bold; width:200px"> Metadata </label>
+    <br/>
+    <table style="table-layout:fixed">
+        <tr style="font-weight: bold;">
+            <td>OriginatingBrokerId</td>
+            <td>OriginatingBrokerName</td>
+            <td>Brokers</td>
+            <td>Topics</td>
+        </tr>
+        <tr>
+            <td> @Model.OriginatingBrokerId</td>
+            <td> @Model.OriginatingBrokerName</td>
+            @*</tr>*@
+            <td width="500" style="text-wrap">
+                @foreach (var item in Model.brokers)
+                {
+                    @*<tr>*@
+                    <label>borkerid : @item.BrokerId</label>
+                    <label> Hiost : @item.Host</label>
+                    <label>port : @item.Port</label>
+
+                    @*</tr>*@
+                }
+            </td>
+            <td style="text-wrap">
+                @foreach (var item in Model.topics)
+                {
+                    @*<tr>*@
+
+
+                    <label style="font-weight: bold;">
+                        <b> topicName: @item.topicName</b>
+                    </label>
+                    <label>partitionCount: @item.partitionCount </label>
+
+                    @foreach (var partition in item.partitions)
+                    {
+                        <label>PartitionId: @partition.PartitionId </label>
+                        <label>Leader: @partition.Leader</label>
+                        <label>Replicas:</label>
+                        @foreach (var Replicas in partition.Replicas)
+                        {
+                            @Replicas.ToString()
+
+                        }
+                        <label>
+                            InSyncReplicas:
+                        </label>
+                        @foreach (var Replicas in partition.InSyncReplicas)
+                        {
+
+                            @Replicas.ToString()
+
+                        }
+                    }
+                    <br />
+
+
+                    @*</tr>*@
+                    <br />
+                }
+            </td>
+        </tr>
+    </table>
+    }
+    @*@if (Model != null)
+        {
+            @(Html
+         .Grid(Model)
+         .Build(columns =>
+         {
+             columns.Add(model => model.OriginatingBrokerId).Titled("OriginatingBrokerId");
+             columns.Add(model => model.OriginatingBrokerName).Titled("OriginatingBrokerName");
+             columns.Add(model => model.brokers).Titled("broker details");
+             columns.Add(model => model.topics).Titled("broker details");
+         })
+         .Using(GridFilterMode.Header)
+            .Empty("No data found")
+            .Filterable()
+            .Sortable()
+            .Pageable()
+            )
+        }*@
+    @*<table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.OriginatingBrokerId)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.OriginatingBrokerName)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OriginatingBrokerId)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OriginatingBrokerName)
+                        </td>
+                        <td>
+                            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>*@

@@ -1,0 +1,3 @@
+E:\kafka learning projects\Web\obj\Debug\net45\Web.csprojAssemblyReference.cache
+E:\kafka learning projects\Web\obj\Debug\net45\Web.AssemblyInfoInputs.cache
+E:\kafka learning projects\Web\obj\Debug\net45\Web.AssemblyInfo.cs

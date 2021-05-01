@@ -37,20 +37,21 @@ namespace Web
         {
             services.AddSingleton<KafkaClientHandle>();
             services.AddSingleton<KafkaDependentProducer<Null, string>>();
-            services.AddSingleton<KafkaDependentProducer<string, long>>();
+            //services.AddSingleton<KafkaDependentProducer<string, long>>();
             services.AddSingleton<KafkaDependentProducer<string, string>>();
-            services.AddSingleton<KafkaDependentProducer<string, int>>();
+            services.AddSingleton<KafkaDependentProducer<string, string>>();
             //services.AddHostedService<RequestTimeConsumer>();
             services.AddHostedService<USAconsumer>();
             services.AddHostedService<UAEconsumer>();
-            services.AddHostedService<INDconsumer>();
+            //services.AddHostedService<INDconsumer>();
+            services.AddHostedService<AUSconsumer>();
             services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseMiddleware<RequestTimerMiddleware>();
+            //app.UseMiddleware<RequestTimerMiddleware>();
             app.UseDeveloperExceptionPage();
             app.UseRouting();
             app.UseEndpoints(endpoints =>

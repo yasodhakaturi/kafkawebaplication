@@ -1,0 +1,105 @@
+﻿@*@using NonFactors.Mvc.Grid;
+
+@model IEnumerable<Web.Models.KafkaServerDetails>*@
+
+@{
+    ViewData["Title"] = "Index";
+
+}
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+</head>
+<p>Welcome, this is the home page</p>
+<body>
+    <table>
+        <tr>
+            <td>
+                @using (Html.BeginForm("CreateTopic", "Home", FormMethod.Post))
+                {
+                    <label>TopicName </label>
+                    <input type="text" name="texttopicname" id="texttopicname" />
+                    <label>PartitionCount </label>
+                    <input type="number" name="textpartitioncount" id="textpartitioncount" value="PartitionCount" />
+                    <input type="submit" name="btnCreateTopic" id="btnCreateTopic" value="CreateTopic" />
+                }
+            </td>
+            <td>
+                @using (Html.BeginForm("IncreasePartitions", "Home", FormMethod.Post))
+                {
+                    <label>TopicName </label>
+                    <input type="text" name="texttopicname" id="texttopicname" />
+                    <label>PartitionCount </label>
+                    <input type="number" name="textpartitioncount" id="textpartitioncount" value="PartitionCount" />
+                    <input type="submit" name="btnIncreasePartitions" id="btnIncreasePartitions" value="IncreasePartitions" />
+                }
+            </td>
+            <td>
+                @using (Html.BeginForm("CreateProducer", "Home", FormMethod.Post))
+                {
+                    <input type="text" id="texttopicname" value="" />
+                    <input type="submit" id="btnCreateProducer" value="CreateProducer" />
+                }
+            </td>
+        </tr>
+    </table>
+    <br />
+    <div>
+        <input type="button" name="btnViewKafkaDetails" id="btnViewKafkaDetails" value="ViewKafkaDetails" onclick="location.href='@Url.Action("ViewKafkaDetails", "Home")'" />
+
+    </div>
+    <br />
+    @*@if (Model != null)*@
+    @if (ViewBag.gettopics != null)
+    {
+        <div>
+            <label> Topic : @Model </label>
+            @foreach (var item in Model)
+            {
+                <label> Topic : @item </label> <input type="button" name="btnDeleteTopic" id="btnDeleteTopic" value="DeleteTopic" onclick="location.href='@Url.Action("DeleteTopic", "Home", new { topicname = item })'" />
+
+
+                <br />
+            }
+        </div>
+    }
+
+
+    <div>
+        <input type="button" name="btnViewTopics" id="btnViewTopics" value="ViewTopics" onclick="location.href='@Url.Action("ViewTopics", "Home")'" />
+
+    </div>
+    <br/>
+
+    @if (ViewBag.gettopic != null)
+    {
+        <div>
+            <label> Topic : @ViewBag.gettopic </label>
+        </div>
+    }
+    <div>
+        @{
+            <input type="text" id="texttopic" value="" />
+            <input type="button" name="btnViewTopics" id="btnViewTopics" value="ViewTopic" onclick="location.href='@Url.Action("GetTopic", "Home", new { topicname = "texttopic" })'" />
+        }
+    </div>
+
+    @*@if(Model!=null)
+            {
+            @(Html
+         .Grid(Model)
+         .Build(columns =>
+         {
+             columns.Add(model => model.OriginatingBrokerId).Titled("OriginatingBrokerId");
+             columns.Add(model => model.OriginatingBrokerName).Titled("OriginatingBrokerName");
+             columns.Add(model => model.brokers).Titled("broker details");
+             columns.Add(model => model.topics).Titled("broker details");
+         })
+         .Using(GridFilterMode.Header)
+            .Empty("No data found")
+            .Filterable()
+            .Sortable()
+            .Pageable()
+         )
+        }*@
+</body>
